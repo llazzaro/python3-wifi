@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from distutils.core import setup
 
+
 def get_version():
     with open("docs/VERSION") as f:
         version = f.readline()
@@ -8,7 +9,7 @@ def get_version():
 
 
 setup(
-    name = "python-wifi",
+    name = "python3-wifi",
     version = get_version(),
     author = "Róman Joost",
     author_email = "roman@bromeco.de",
