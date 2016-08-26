@@ -21,10 +21,36 @@
 #
 import getopt
 import sys
-import types
 
-import pythonwifi.flags
-from pythonwifi.iwlibs import Wireless, WirelessInfo, Iwrange, getNICnames, getWNICnames
+from pythonwifi.flags import (
+    IW_POWER_TYPE,
+    IW_RETRY_MIN,
+    IW_RETRY_MAX,
+    IW_RETRY_SHORT,
+    IW_RETRY_LONG,
+    IW_RETRY_LIFETIME,
+    IW_ENCODE_DISABLED,
+    IW_ENCODE_INDEX,
+    IW_ENCODE_RESTRICTED,
+    IW_ENCODE_OPEN,
+    IW_POWER_MIN,
+    IW_POWER_MAX,
+    IW_POWER_TIMEOUT,
+    IW_POWER_SAVING,
+    IW_POWER_MODE,
+    IW_POWER_UNICAST_R,
+    IW_POWER_MULTICAST_R,
+    IW_POWER_ALL_R,
+    IW_POWER_FORCE_S,
+    IW_POWER_REPEATER,
+    IW_POWER_ON,
+    IW_MODE_ADHOC,
+    SIOCSIWESSID,
+    IW_ESSID_MAX_SIZE,
+    SIOCSIWMODE,
+)
+from pythonwifi.iwlibs import Wireless, Iwrange, getNICnames, getWNICnames
+
 
 def getBitrate(wifi):
     """ Return formatted string with Bit Rate info. """
@@ -39,6 +65,7 @@ def getBitrate(wifi):
             fixed = ":"
         return "Bit Rate%c%s   " % (fixed, wifi.getBitrate())
 
+
 def getTXPower(wifi):
     """ Return formatted string with TXPower info. """
     try:
@@ -51,6 +78,7 @@ def getTXPower(wifi):
         else:
             fixed = ":"
         return "Tx-Power%c%s   " % (fixed, wifi.getTXPower())
+
 
 def getSensitivity(wifi):
     """ Return formatted string with Sensitivity info. """
@@ -67,6 +95,7 @@ def getSensitivity(wifi):
         return "Sensitivity%c%d/%d  " % (
             fixed, wifi.getSensitivity(), iwrange.sensitivity)
 
+
 def getRetrylimit(wifi):
     """ Return formatted string with Retry info. """
     try:
@@ -75,18 +104,19 @@ def getRetrylimit(wifi):
         return None
     else:
         modifier = ""
-        if (retry.flags & pythonwifi.flags.IW_RETRY_MIN):
+        if (retry.flags & IW_RETRY_MIN):
             modifier = " min"
-        elif (retry.flags & pythonwifi.flags.IW_RETRY_MAX):
+        elif (retry.flags & IW_RETRY_MAX):
             modifier = " max"
-        elif (retry.flags & pythonwifi.flags.IW_RETRY_SHORT):
+        elif (retry.flags & IW_RETRY_SHORT):
             modifier = " short"
-        elif (retry.flags & pythonwifi.flags.IW_RETRY_LONG):
+        elif (retry.flags & IW_RETRY_LONG):
             modifier = "  long"
         type = " limit"
-        if (retry.flags & pythonwifi.flags.IW_RETRY_LIFETIME):
+        if (retry.flags & IW_RETRY_LIFETIME):
             type = " lifetime"
         return "Retry%s%s:%s   " % (modifier, type, wifi.getRetrylimit())
+
 
 def getRTS(wifi):
     """ Return formatted string with RTS info. """
@@ -103,6 +133,7 @@ def getRTS(wifi):
             fixed = ":"
         return "RTS thr%c%d B   " % (fixed, wifi.getRTS())
 
+
 def getFragmentation(wifi):
     """ Return formatted string with Fragmentation info. """
     try:
@@ -118,6 +149,7 @@ def getFragmentation(wifi):
             fixed = ":"
         return "Fragment thr%c%d B   " % (fixed, wifi.getFragmentation())
 
+
 def getEncryption(wifi):
     """ Return formatted string with Encryption info.
 
@@ -131,21 +163,22 @@ def getEncryption(wifi):
         #print errno, strerror
         #return None
     #else:
-    if (enc.flags & pythonwifi.flags.IW_ENCODE_DISABLED):
+    if (enc.flags & IW_ENCODE_DISABLED):
         key = "Encryption key:off"
     else:
         key = "Encryption key:%s" % (wifi.getKey(), )
-    if ((enc.flags & pythonwifi.flags.IW_ENCODE_INDEX) > 1):
-        index = " [%d]" % (enc.flags & pythonwifi.flags.IW_ENCODE_INDEX, )
+    if ((enc.flags & IW_ENCODE_INDEX) > 1):
+        index = " [%d]" % (enc.flags & IW_ENCODE_INDEX, )
     else:
         index = ""
-    if ((enc.flags & pythonwifi.flags.IW_ENCODE_RESTRICTED) > 0):
+    if ((enc.flags & IW_ENCODE_RESTRICTED) > 0):
         mode = "   Security mode:restricted"
-    elif ((enc.flags & pythonwifi.flags.IW_ENCODE_OPEN) > 0):
+    elif ((enc.flags & IW_ENCODE_OPEN) > 0):
         mode = "   Security mode:open"
     else:
         mode = ""
     return "%s%s%s" % (key, index, mode)
+
 
 def getPowerManagement(wifi):
     """ Return formatted string with Power Management info. """
@@ -155,31 +188,32 @@ def getPowerManagement(wifi):
         status = ":off"
     else:
         if (power.flags & IW_POWER_TYPE):
-            if (power.flags & pythonwifi.flags.IW_POWER_MIN):
+            if (power.flags & IW_POWER_MIN):
                 status = status + " min"
-            if (power.flags & pythonwifi.flags.IW_POWER_MAX):
+            if (power.flags & IW_POWER_MAX):
                 status = status + " max"
-            if (power.flags & pythonwifi.flags.IW_POWER_TIMEOUT):
+            if (power.flags & IW_POWER_TIMEOUT):
                 status = status + " timeout:"
             else:
-                if (power.flags & pythonwifi.flags.IW_POWER_SAVING):
+                if (power.flags & IW_POWER_SAVING):
                     status = status + " saving:"
                 else:
                     status = status + " period:"
-        pm_mode_mask = power.flags & pythonwifi.flags.IW_POWER_MODE
-        if (pm_mode_mask == pythonwifi.flags.IW_POWER_UNICAST_R):
+        pm_mode_mask = power.flags & IW_POWER_MODE
+        if (pm_mode_mask == IW_POWER_UNICAST_R):
             status = status + "mode:Receive Unicast only received"
-        elif (pm_mode_mask == pythonwifi.flags.IW_POWER_MULTICAST_R):
+        elif (pm_mode_mask == IW_POWER_MULTICAST_R):
             status = status + "mode:Receive Multicast only received"
-        elif (pm_mode_mask == pythonwifi.flags.IW_POWER_ALL_R):
+        elif (pm_mode_mask == IW_POWER_ALL_R):
             status = status + "mode:All packets received"
-        elif (pm_mode_mask == pythonwifi.flags.IW_POWER_FORCE_S):
+        elif (pm_mode_mask == IW_POWER_FORCE_S):
             status = status + "mode:Force sending"
-        elif (pm_mode_mask == pythonwifi.flags.IW_POWER_REPEATER):
+        elif (pm_mode_mask == IW_POWER_REPEATER):
             status = status + "mode:Repeat multicasts"
-        if (power.flags & pythonwifi.flags.IW_POWER_ON):
+        if (power.flags & IW_POWER_ON):
             status = status + ":on"
     return "Power Management%s" % (status, )
+
 
 def iwconfig(interface):
     """ Get wireless information from the device driver. """
@@ -201,7 +235,7 @@ def iwconfig(interface):
             # Some drivers do not return frequency info if not associated
             pass
 
-        if (wifi.wireless_info.getMode() == pythonwifi.flags.IW_MODE_ADHOC):
+        if (wifi.wireless_info.getMode() == IW_MODE_ADHOC):
             ap_type = "Cell"
         else:
             ap_type = "Access Point"
@@ -258,21 +292,20 @@ def iwconfig(interface):
             line = line + "Link Quality:%s/100  " % (qual.quality, )
             line = line + "Signal level:%sdBm  " % (qual.signallevel, )
             line = line + "Noise level:%sdBm" % (qual.noiselevel, )
-            print line
+            print(line)
             # Rx line
             line = "          "
             line = line + "Rx invalid nwid:%s  " % (discard['nwid'], )
             line = line + "Rx invalid crypt:%s  " % (discard['code'], )
             line = line + "Rx invalid frag:%s" % (discard['fragment'], )
-            print line
+            print(line)
             # Tx line
             line = "          "
             line = line + "Tx excessive retries:%s  " % (discard['retries'], )
             line = line + "Invalid misc:%s   " % (discard['misc'], )
             line = line + "Missed beacon:%s" % (missed_beacon, )
-            print line
+            print(line)
 
-    print
 
 def setEssid(wifi, essid):
     """ Set the ESSID on the NIC. """
@@ -280,12 +313,13 @@ def setEssid(wifi, essid):
         wifi.setEssid(essid)
     except OverflowError, (errno, strerror):
         print "Error for wireless request \"Set ESSID\" (%X) :" % \
-                (pythonwifi.flags.SIOCSIWESSID, )
+                (SIOCSIWESSID, )
         print "    argument too big (max %d)" % \
-                (pythonwifi.flags.IW_ESSID_MAX_SIZE, )
+                (IW_ESSID_MAX_SIZE, )
     except Exception, detail:
         # Unexpected errors
         print detail
+
 
 def setMode(wifi, mode):
     """ Set the mode on the NIC. """
@@ -293,15 +327,16 @@ def setMode(wifi, mode):
         wifi.setMode(mode)
     except ValueError, detail:
         print "Error for wireless request \"Set Mode\" (%X) :" % \
-                (pythonwifi.flags.SIOCSIWMODE, )
+                (SIOCSIWMODE, )
         print "    invalid argument \"%s\"." % (mode, )
     except IOError, (error_num, error_str):
         print "Error for wireless request \"Set Mode\" (%X) :" % \
-                (pythonwifi.flags.SIOCSIWMODE, )
+                (SIOCSIWMODE, )
         print "    SET failed on device %s ; %s." % (wifi.ifname, error_str)
     except Exception, detail:
         # Unexpected errors
         print type(detail), detail
+
 
 def setFreq(wifi, freq):
     """ Set the frequency on the NIC. """
@@ -311,6 +346,7 @@ def setFreq(wifi, freq):
         # Unexpected errors
         print type(detail), detail
 
+
 def setKey(wifi, key):
     """ Set a WEP key on the NIC. """
     try:
@@ -319,6 +355,7 @@ def setKey(wifi, key):
         # Unexpected errors
         print type(detail), detail
 
+
 def setAP(wifi, ap):
     """ Set the AP with which to associate. """
     try:
@@ -326,6 +363,7 @@ def setAP(wifi, ap):
     except Exception, detail:
         # Unexpected errors
         print type(detail), detail
+
 
 def usage():
     """ Print info about using iwconfig.py. """
@@ -348,8 +386,9 @@ def usage():
                 interface rts {N|auto|fixed|off}
                 interface frag {N|auto|fixed|off}
                 interface modulation {11g|11a|CCK|OFDMg|...}
-                interface commit 
+                interface commit
        Check man pages for more details."""
+
 
 def version_info():
     """ Print version info for iwconfig.py, Wireless Extensions compatibility,
@@ -357,6 +396,7 @@ def version_info():
 
     """
     pass
+
 
 def get_matching_command(option):
     """ Return a function for the command.
@@ -367,26 +407,13 @@ def get_matching_command(option):
 
     """
     # build dictionary of commands and functions
-    iwcommands = { "es"   : ("essid",      setEssid),
-                   "mode" : ("mode",       setMode),
-                   "fre"  : ("freq",       setFreq),
-                   "ch"   : ("channel",    setFreq),
-                   #"b"    : ("bit",        setBitrate),
-                   #"ra"   : ("rate",       setBitrate),
-                   "en"   : ("enc",        setKey),
-                   "k"    : ("key",        setKey),
-                   #"p"    : ("power",      setPower),
-                   #"ni"   : ("nickname",   setNickname),
-                   #"nw"   : ("nwid",       setNwid),
-                   "a"    : ("ap",         setAP),
-                   #"t"    : ("txpower",    setTxpower),
-                   #"s"    : ("sens",       setSens),
-                   #"re"   : ("retry",      setRetry),
-                   #"rt"   : ("rts",        setRts),
-                   #"fra"  : ("frag",       setFrag),
-                   #"modu" : ("modulation", setModulation),
-                   #"co"   : ("commit",     setCommit),
-                 }
+    iwcommands = {"es": ("essid", setEssid),
+                   "mode": ("mode", setMode),
+                   "fre": ("freq", setFreq),
+                   "ch": ("channel", setFreq),
+                   "en": ("enc", setKey),
+                   "k": ("key", setKey),
+                   "a": ("ap", setAP)}
 
     function = None
     for command in iwcommands.keys():
@@ -395,12 +422,13 @@ def get_matching_command(option):
                 function = iwcommands[command][1]
     return function
 
+
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hv", ["help", "version"])
-    except getopt.GetoptError, error_str:
+    except getopt.GetoptError as error:
         # invalid options will be taken to be interface name
-        pass
+        print(error)
     else:
         try:
             if opts[0][0] in ("-h", "--help"):

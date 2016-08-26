@@ -21,10 +21,10 @@
 #
 import errno
 import sys
-import types
 
 import pythonwifi.flags
 from pythonwifi.iwlibs import Wireless, Iwrange, getNICnames
+
 
 def print_scanning_results(wifi, args=None):
     """ Print the access points detected nearby.
@@ -32,7 +32,7 @@ def print_scanning_results(wifi, args=None):
     """
     # "Check if the interface could support scanning"
     try:
-        iwrange = Iwrange(wifi.ifname)
+        Iwrange(wifi.ifname)
     except IOError, (error_number, error_string):
         sys.stderr.write("%-8.16s  Interface doesn't support scanning.\n\n" % (
                             wifi.ifname))
@@ -62,17 +62,17 @@ def print_scanning_results(wifi, args=None):
                         (wifi._formatFrequency(ap.frequency.getFrequency()),
                         frequencies.index(wifi._formatFrequency(
                             ap.frequency.getFrequency())) + 1)
-                    if (ap.quality.updated & \
+                    if (ap.quality.updated &
                                 pythonwifi.flags.IW_QUAL_QUAL_UPDATED):
                         quality_updated = "="
                     else:
                         quality_updated = ":"
-                    if (ap.quality.updated & \
+                    if (ap.quality.updated &
                                 pythonwifi.flags.IW_QUAL_LEVEL_UPDATED):
                         signal_updated = "="
                     else:
                         signal_updated = ":"
-                    if (ap.quality.updated & \
+                    if (ap.quality.updated &
                                 pythonwifi.flags.IW_QUAL_NOISE_UPDATED):
                         noise_updated = "="
                     else:
@@ -119,13 +119,13 @@ def print_scanning_results(wifi, args=None):
                                 # non-first lines should start *very* indented
                                 rate_line = "                              "
                             # print non-full line
-                            print rate_line + "%s; "*(rate_remainder - 1) % \
+                            print rate_line + "%s; " * (rate_remainder - 1) % \
                                 tuple(wifi._formatBitrate(x) for x in
                                     rate_list[line * 5:line * 5 + rate_remainder - 1]) + \
                                 "%s" % (wifi._formatBitrate(
                                         rate_list[line * 5 + rate_remainder - 1]))
                     index = index + 1
-            print
+
 
 def print_channels(wifi, args=None):
     """ Print all frequencies/channels available on the card.
@@ -149,7 +149,7 @@ def print_channels(wifi, args=None):
                     (wifi.ifname, num_frequencies)
         for channel in channels:
             print "          Channel %02d : %s" % \
-                    (channels.index(channel)+1, channel)
+                    (channels.index(channel) + 1, channel)
         # Do some low-level comparisons on frequency info
         iwfreq = wifi.wireless_info.getFrequency()
         # XXX - this is not the same flags value as iwlist.c
@@ -164,7 +164,8 @@ def print_channels(wifi, args=None):
         # Output current channel/frequency
         current_freq = wifi.getFrequency()
         print "          Current %s%c%s (Channel %d)\n" % \
-                    (return_type, fixed, current_freq, channels.index(current_freq) + 1 )
+                    (return_type, fixed, current_freq, channels.index(current_freq) + 1)
+
 
 def print_bitrates(wifi, args=None):
     """ Print all bitrates available on the card.
@@ -208,6 +209,7 @@ def print_bitrates(wifi, args=None):
         # XXX add broadcast bit rate
         print
 
+
 def print_encryption(wifi, args=None):
     """ Print encryption keys on the card.
 
@@ -244,6 +246,7 @@ def print_encryption(wifi, args=None):
             print "          Security mode:open"
         print "\n"
 
+
 def format_pm_value(value, args=None):
     """ Return formatted PM value.
 
@@ -256,6 +259,7 @@ def format_pm_value(value, args=None):
         else:
             fvalue = "%dus" % (value, )
     return fvalue
+
 
 def print_power(wifi, args=None):
     """ Print power management info for the card.
@@ -315,28 +319,30 @@ def print_power(wifi, args=None):
         if power_params.disabled:
             print "Current mode:off"
         else:
-            if (power_params.flags & pythonwifi.flags.IW_POWER_MODE == \
+            if (power_params.flags & pythonwifi.flags.IW_POWER_MODE ==
                         pythonwifi.flags.IW_POWER_UNICAST_R):
                 print "Current mode:Unicast only received"
-            elif (power_params.flags & pythonwifi.flags.IW_POWER_MODE == \
+            elif (power_params.flags & pythonwifi.flags.IW_POWER_MODE ==
                         pythonwifi.flags.IW_POWER_MULTICAST_R):
                 print "Current mode:Multicast only received"
-            elif (power_params.flags & pythonwifi.flags.IW_POWER_MODE == \
+            elif (power_params.flags & pythonwifi.flags.IW_POWER_MODE ==
                         pythonwifi.flags.IW_POWER_ALL_R):
                 print "Current mode:All packets received"
-            elif (power_params.flags & pythonwifi.flags.IW_POWER_MODE == \
+            elif (power_params.flags & pythonwifi.flags.IW_POWER_MODE ==
                         pythonwifi.flags.IW_POWER_FORCE_S):
                 print "Current mode:Force sending"
-            elif (power_params.flags & pythonwifi.flags.IW_POWER_MODE == \
+            elif (power_params.flags & pythonwifi.flags.IW_POWER_MODE ==
                         pythonwifi.flags.IW_POWER_REPEATER):
                 print "Current mode:Repeat multicasts"
         print
+
 
 def print_txpower(wifi, args=None):
     """ Print transmit power info for the card.
 
     """
     pass
+
 
 def print_retry(wifi, args=None):
     try:
@@ -395,6 +401,7 @@ def print_retry(wifi, args=None):
                     mode = mode + " long %s:%d" % (mode_type, iwparam.value)
                 print mode
 
+
 def print_aps(wifi, args=None):
     """ Print the access points detected nearby.
 
@@ -404,7 +411,7 @@ def print_aps(wifi, args=None):
     """
     # "Check if the interface could support scanning"
     try:
-        iwrange = Iwrange(wifi.ifname)
+        Iwrange(wifi.ifname)
     except IOError, (error_number, error_string):
         sys.stderr.write("%-8.16s  Interface doesn't support scanning.\n\n" % (
                             wifi.ifname))
@@ -427,17 +434,17 @@ def print_aps(wifi, args=None):
                 print "%-8.16s  Peers/Access-Points in range:"% (wifi.ifname, )
                 for ap in results:
                     if (ap.quality.quality):
-                        if (ap.quality.updated & \
+                        if (ap.quality.updated &
                                     pythonwifi.flags.IW_QUAL_QUAL_UPDATED):
                             quality_updated = "="
                         else:
                             quality_updated = ":"
-                        if (ap.quality.updated & \
+                        if (ap.quality.updated &
                                     pythonwifi.flags.IW_QUAL_LEVEL_UPDATED):
                             signal_updated = "="
                         else:
                             signal_updated = ":"
-                        if (ap.quality.updated & \
+                        if (ap.quality.updated &
                                     pythonwifi.flags.IW_QUAL_NOISE_UPDATED):
                             noise_updated = "="
                         else:
@@ -466,6 +473,7 @@ http://lists.berlios.de/mailman/listinfo/pythonwifi-dev).  While attempting to \
 print %s informaion for %s, the error "%d - %s" occurred.""" % \
 (function, interface, error_number, error_string)
 
+
 def usage():
     print """\
 Usage: iwlist.py [interface] scanning [essid NNN] [last]
@@ -481,6 +489,7 @@ Usage: iwlist.py [interface] scanning [essid NNN] [last]
                  [interface] accesspoints
                  [interface] peers"""
 
+
 def get_matching_command(option):
     """ Return a function for the command.
 
@@ -490,25 +499,19 @@ def get_matching_command(option):
 
     """
     # build dictionary of commands and functions
-    iwcommands = { "s"   : ("scanning", print_scanning_results),
-                   "c"   : ("channel", print_channels),
-                   "f"   : ("frequency", print_channels),
-                   "b"   : ("bitrate", print_bitrates),
-                   "ra"  : ("rate", print_bitrates),
-                   "en"  : ("encryption", print_encryption),
-                   "k"   : ("keys", print_encryption),
-                   "po"  : ("power", print_power),
-                   "t"   : ("txpower", print_txpower),
-                   "re"  : ("retry", print_retry),
-                   "ap"  : ("ap", print_aps),
-                   "ac"  : ("accesspoints", print_aps),
-                   "pe"  : ("peers", print_aps),
-                   #"ev" : ("event", print_event),
-                   #"au" : ("auth", print_auth),
-                   #"w"  : ("wpakeys", print_wpa),
-                   #"g"  : ("genie", print_genie),
-                   #"m"  : ("modulation", print_modulation),
-                 }
+    iwcommands = {"s": ("scanning", print_scanning_results),
+                   "c": ("channel", print_channels),
+                   "f": ("frequency", print_channels),
+                   "b": ("bitrate", print_bitrates),
+                   "ra": ("rate", print_bitrates),
+                   "en": ("encryption", print_encryption),
+                   "k": ("keys", print_encryption),
+                   "po": ("power", print_power),
+                   "t": ("txpower", print_txpower),
+                   "re": ("retry", print_retry),
+                   "ap": ("ap", print_aps),
+                   "ac": ("accesspoints", print_aps),
+                   "pe": ("peers", print_aps)}
 
     function = None
     for command in iwcommands.keys():
@@ -516,6 +519,7 @@ def get_matching_command(option):
             if iwcommands[command][0].startswith(option):
                 function = iwcommands[command][1]
     return function
+
 
 def main():
     # if only program name is given, print usage info
@@ -547,10 +551,8 @@ def main():
             wifi = Wireless(ifname)
             list_command(wifi, sys.argv[3:])
         else:
-            print "iwlist.py: unknown command `%s' " \
-                   "(check 'iwlist.py --help')." % (option, )
+            print "iwlist.py: unknown command `%s' (check 'iwlist.py --help')." % (option, )
 
 
 if __name__ == "__main__":
     main()
-
